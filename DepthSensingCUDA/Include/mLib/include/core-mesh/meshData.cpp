@@ -477,7 +477,7 @@ void MeshData<FloatType>::merge( const MeshData<FloatType>& other )
         return;
     }
 	if (isEmpty()) {
-		*this = other;
+		//*this = other;
 		return;
 	}
 

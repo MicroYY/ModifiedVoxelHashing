@@ -3,3 +3,7 @@
 ################################################################################
 
 /DepthSensingCUDA/.vs/DepthSensing/v16
+/DepthSensingCUDA/CompiledShaders
+/DepthSensingCUDA/Scans
+/DepthSensingCUDA/x64
+*.bmp
