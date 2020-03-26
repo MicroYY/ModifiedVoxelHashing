@@ -9,7 +9,7 @@
 //--------------------------------------------------------------------------------------
 
 CDXUTDialogResourceManager	g_DialogResourceManager; // manager for shared resources of dialogs
-CDXUTTextHelper*            g_pTxtHelper = NULL;
+CDXUTTextHelper* g_pTxtHelper = NULL;
 bool						g_renderText = true;
 bool						g_bRenderHelp = true;
 
@@ -20,20 +20,30 @@ DX11RGBDRenderer			g_RGBDRenderer;
 DX11CustomRenderTarget		g_CustomRenderTarget;
 DX11CustomRenderTarget		g_RenderToFileTarget;
 
-CUDACameraTrackingMultiRes*		g_cameraTracking	 = NULL;
-CUDACameraTrackingMultiResRGBD*	g_cameraTrackingRGBD = NULL;
+CUDACameraTrackingMultiRes* g_cameraTracking = NULL;
+CUDACameraTrackingMultiResRGBD* g_cameraTrackingRGBD = NULL;
 
-CUDASceneRepHashSDF*		g_sceneRep			= NULL;
-CUDARayCastSDF*				g_rayCast			= NULL;
-CUDAMarchingCubesHashSDF*	g_marchingCubesHashSDF = NULL;
-CUDAHistrogramHashSDF*		g_historgram = NULL;
-CUDASceneRepChunkGrid*		g_chunkGrid = NULL;
+CUDASceneRepHashSDF* g_sceneRep = NULL;
+CUDARayCastSDF* g_rayCast = NULL;
+CUDAMarchingCubesHashSDF* g_marchingCubesHashSDF = NULL;
+CUDAHistrogramHashSDF* g_historgram = NULL;
+CUDASceneRepChunkGrid* g_chunkGrid = NULL;
 
 
 RGBDSensor* getRGBDSensor()
 {
 	static RGBDSensor* g_sensor = NULL;
 	if (g_sensor != NULL)	return g_sensor;
+
+	if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_TCPSensor)
+	{
+#ifdef TCP_SENSOR
+		g_sensor = new TCPSensor;
+		return g_sensor;
+#else
+		throw MLIB_EXCEPTION("Requires TCP connection and enable TCP_SENSOR macro");
+#endif
+	}
 
 	if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_Kinect) {
 #ifdef KINECT
@@ -46,7 +56,7 @@ RGBDSensor* getRGBDSensor()
 #endif
 	}
 
-	if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_PrimeSense)	{
+	if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_PrimeSense) {
 #ifdef OPEN_NI
 		//static PrimeSenseSensor s_primeSense;
 		//return &s_primeSense;
@@ -139,18 +149,18 @@ void InitApp()
 //--------------------------------------------------------------------------------------
 // Called right before creating a D3D9 or D3D10 device, allowing the app to modify the device settings as needed
 //--------------------------------------------------------------------------------------
-bool CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* pUserContext )
+bool CALLBACK ModifyDeviceSettings(DXUTDeviceSettings* pDeviceSettings, void* pUserContext)
 {
 	// For the first device created if its a REF device, optionally display a warning dialog box
 	static bool s_bFirstTime = true;
-	if( s_bFirstTime )
+	if (s_bFirstTime)
 	{
 		s_bFirstTime = false;
-		if( ( DXUT_D3D9_DEVICE == pDeviceSettings->ver && pDeviceSettings->d3d9.DeviceType == D3DDEVTYPE_REF ) ||
-			( DXUT_D3D11_DEVICE == pDeviceSettings->ver &&
-			pDeviceSettings->d3d11.DriverType == D3D_DRIVER_TYPE_REFERENCE ) )
+		if ((DXUT_D3D9_DEVICE == pDeviceSettings->ver && pDeviceSettings->d3d9.DeviceType == D3DDEVTYPE_REF) ||
+			(DXUT_D3D11_DEVICE == pDeviceSettings->ver &&
+				pDeviceSettings->d3d11.DriverType == D3D_DRIVER_TYPE_REFERENCE))
 		{
-			DXUTDisplaySwitchingToREFWarning( pDeviceSettings->ver );
+			DXUTDisplaySwitchingToREFWarning(pDeviceSettings->ver);
 		}
 	}
 
@@ -160,9 +170,9 @@ bool CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* p
 //--------------------------------------------------------------------------------------
 // Handle updates to the scene
 //--------------------------------------------------------------------------------------
-void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext )
+void CALLBACK OnFrameMove(double fTime, float fElapsedTime, void* pUserContext)
 {
-	g_Camera.FrameMove( fElapsedTime );
+	g_Camera.FrameMove(fElapsedTime);
 	// Update the camera's position based on user input 
 }
 
@@ -172,12 +182,12 @@ void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext 
 void RenderText()
 {
 	g_pTxtHelper->Begin();
-	g_pTxtHelper->SetInsertionPos( 2, 0 );
-	g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 0.0f, 1.0f ) );
-	g_pTxtHelper->DrawTextLine( DXUTGetFrameStats( DXUTIsVsyncEnabled() ) );
-	g_pTxtHelper->DrawTextLine( DXUTGetDeviceStats() );
+	g_pTxtHelper->SetInsertionPos(2, 0);
+	g_pTxtHelper->SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
+	g_pTxtHelper->DrawTextLine(DXUTGetFrameStats(DXUTIsVsyncEnabled()));
+	g_pTxtHelper->DrawTextLine(DXUTGetDeviceStats());
 	if (!g_bRenderHelp) {
-		g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		g_pTxtHelper->SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 		g_pTxtHelper->DrawTextLine(L"\tPress F1 for help");
 	}
 	g_pTxtHelper->End();
@@ -188,12 +198,12 @@ void RenderText()
 	}
 }
 
-void RenderHelp() 
+void RenderHelp()
 {
 	g_pTxtHelper->Begin();
-	g_pTxtHelper->SetInsertionPos( 2, 40 );
-	g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 0.0f, 0.0f, 1.0f ) );
-	g_pTxtHelper->DrawTextLine( L"Controls " );
+	g_pTxtHelper->SetInsertionPos(2, 40);
+	g_pTxtHelper->SetForegroundColor(D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	g_pTxtHelper->DrawTextLine(L"Controls ");
 	g_pTxtHelper->DrawTextLine(L"  \tF1:\t Hide help");
 	g_pTxtHelper->DrawTextLine(L"  \tF2:\t Screenshot");
 	g_pTxtHelper->DrawTextLine(L"  \t'R':\t Reset scan");
@@ -218,15 +228,15 @@ void RenderHelp()
 //--------------------------------------------------------------------------------------
 // Handle messages to the application
 //--------------------------------------------------------------------------------------
-LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing,
-						 void* pUserContext )
+LRESULT CALLBACK MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing,
+	void* pUserContext)
 {
 	// Pass messages to dialog resource manager calls so GUI state is updated correctly
-	*pbNoFurtherProcessing = g_DialogResourceManager.MsgProc( hWnd, uMsg, wParam, lParam );
-	if( *pbNoFurtherProcessing )
+	*pbNoFurtherProcessing = g_DialogResourceManager.MsgProc(hWnd, uMsg, wParam, lParam);
+	if (*pbNoFurtherProcessing)
 		return 0;
 
-	g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
+	g_Camera.HandleMessages(hWnd, uMsg, wParam, lParam);
 
 	return 0;
 }
@@ -244,7 +254,7 @@ void StopScanningAndExtractIsoSurfaceMC(const std::string& filename, bool overwr
 
 	Timer t;
 
-	vec4f posWorld = g_sceneRep->getLastRigidTransform()*GlobalAppState::get().s_streamingPos; // trans lags one frame
+	vec4f posWorld = g_sceneRep->getLastRigidTransform() * GlobalAppState::get().s_streamingPos; // trans lags one frame
 	vec3f p(posWorld.x, posWorld.y, posWorld.z);
 
 
@@ -254,7 +264,8 @@ void StopScanningAndExtractIsoSurfaceMC(const std::string& filename, bool overwr
 		//g_chunkGrid->streamInToGPUAll();
 		g_marchingCubesHashSDF->extractIsoSurface(g_sceneRep->getHashData(), g_sceneRep->getHashParams(), g_rayCast->getRayCastData());
 		//g_chunkGrid->startMultiThreading();
-	} else {
+	}
+	else {
 		g_marchingCubesHashSDF->extractIsoSurface(*g_chunkGrid, g_rayCast->getRayCastData(), p, GlobalAppState::getInstance().s_streamingRadius);
 	}
 
@@ -283,7 +294,7 @@ void StopScanningAndSaveSDFHash(const std::string& filename = "test.hashgrid") {
 	Timer t;
 	std::cout << "saving hash grid to file " << filename << "... ";
 
-	vec4f posWorld = g_sceneRep->getLastRigidTransform()*GlobalAppState::get().s_streamingPos; // trans lags one frame
+	vec4f posWorld = g_sceneRep->getLastRigidTransform() * GlobalAppState::get().s_streamingPos; // trans lags one frame
 	vec3f p(posWorld.x, posWorld.y, posWorld.z);
 
 	g_chunkGrid->saveToFile(filename, g_rayCast->getRayCastData(), p, GlobalAppState::getInstance().s_streamingRadius);
@@ -302,7 +313,7 @@ void StopScanningAndLoadSDFHash(const std::string& filename = "test.hashgrid") {
 
 	Timer t;
 
-	vec4f posWorld = g_sceneRep->getLastRigidTransform()*GlobalAppState::get().s_streamingPos; // trans lags one frame
+	vec4f posWorld = g_sceneRep->getLastRigidTransform() * GlobalAppState::get().s_streamingPos; // trans lags one frame
 	vec3f p(posWorld.x, posWorld.y, posWorld.z);
 
 	ResetDepthSensing();
@@ -311,7 +322,7 @@ void StopScanningAndLoadSDFHash(const std::string& filename = "test.hashgrid") {
 	std::cout << "Loading Time " << t.getElapsedTime() << " seconds" << std::endl;
 
 	GlobalAppState::get().s_integrationEnabled = false;
-	std::cout << "Integration enabled == false" << std::endl; 
+	std::cout << "Integration enabled == false" << std::endl;
 	GlobalAppState::get().s_trackingEnabled = false;
 	std::cout << "Tracking enabled == false" << std::endl;
 
@@ -325,13 +336,13 @@ void StopScanningAndLoadSDFHash(const std::string& filename = "test.hashgrid") {
 static int whichScreenshot = 0;
 
 
-void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext )
+void CALLBACK OnKeyboard(UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext)
 {
 
-	if( bKeyDown ) {
+	if (bKeyDown) {
 		wchar_t sz[200];
 
-		switch( nChar )
+		switch (nChar)
 		{
 		case VK_F1:
 			g_bRenderHelp = !g_bRenderHelp;
@@ -368,19 +379,20 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 			//case '8':
 			//GlobalAppState::get().s_RenderMode = 8;
 		case '8':
-			{
-				if (GlobalAppState::getInstance().s_recordData) {
-					if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_StructureSensor) { //! hack for structure sensor
-						std::cout << "[dump frames] stopped receiving frames from structure sensor" << std::endl;
-						getRGBDSensor()->stopReceivingFrames();
-					}
-					g_RGBDAdapter.saveRecordedFramesToFile(GlobalAppState::getInstance().s_recordDataFile);
-				} else {
-					std::cout << "Cannot save recording: enable \"s_recordData\" in parameter file" << std::endl;
+		{
+			if (GlobalAppState::getInstance().s_recordData) {
+				if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_StructureSensor) { //! hack for structure sensor
+					std::cout << "[dump frames] stopped receiving frames from structure sensor" << std::endl;
+					getRGBDSensor()->stopReceivingFrames();
 				}
-				break;
+				g_RGBDAdapter.saveRecordedFramesToFile(GlobalAppState::getInstance().s_recordDataFile);
+			}
+			else {
+				std::cout << "Cannot save recording: enable \"s_recordData\" in parameter file" << std::endl;
 			}
 			break;
+		}
+		break;
 		case '9':
 			StopScanningAndExtractIsoSurfaceMC();
 			break;
@@ -419,19 +431,19 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 			g_RGBDAdapter.getRGBDSensor()->savePointCloud("test.ply");
 			break;
 		case 'Y':
-			{
-				float* h_rawDepth = g_RGBDAdapter.getRGBDSensor()->getDepthFloat();
-				DepthImage dRawImage(g_RGBDAdapter.getRGBDSensor()->getDepthHeight(), g_RGBDAdapter.getRGBDSensor()->getDepthWidth(), h_rawDepth);
-				ColorImageRGB cRawImage(dRawImage);
-				FreeImageWrapper::saveImage("raw.png", cRawImage);
+		{
+			float* h_rawDepth = g_RGBDAdapter.getRGBDSensor()->getDepthFloat();
+			DepthImage dRawImage(g_RGBDAdapter.getRGBDSensor()->getDepthHeight(), g_RGBDAdapter.getRGBDSensor()->getDepthWidth(), h_rawDepth);
+			ColorImageRGB cRawImage(dRawImage);
+			FreeImageWrapper::saveImage("raw.png", cRawImage);
 
-				Util::writeToImage(g_RGBDAdapter.getRawDepthMap(), g_RGBDAdapter.getRGBDSensor()->getDepthWidth(), g_RGBDAdapter.getRGBDSensor()->getDepthHeight(), "aRaw.png");
-				Util::writeToImage(g_RGBDAdapter.getDepthMapResampledFloat(), g_RGBDAdapter.getWidth(), g_RGBDAdapter.getHeight(), "aResampled.png");
-				Util::writeToImage(g_CudaDepthSensor.getDepthCameraData().d_depthData, g_CudaDepthSensor.getDepthCameraParams().m_imageWidth, g_CudaDepthSensor.getDepthCameraParams().m_imageHeight, "depth.png");
-				Util::writeToImage(g_rayCast->getRayCastData().d_depth, g_rayCast->getRayCastParams().m_width, g_rayCast->getRayCastParams().m_height, "raycast.png");
+			Util::writeToImage(g_RGBDAdapter.getRawDepthMap(), g_RGBDAdapter.getRGBDSensor()->getDepthWidth(), g_RGBDAdapter.getRGBDSensor()->getDepthHeight(), "aRaw.png");
+			Util::writeToImage(g_RGBDAdapter.getDepthMapResampledFloat(), g_RGBDAdapter.getWidth(), g_RGBDAdapter.getHeight(), "aResampled.png");
+			Util::writeToImage(g_CudaDepthSensor.getDepthCameraData().d_depthData, g_CudaDepthSensor.getDepthCameraParams().m_imageWidth, g_CudaDepthSensor.getDepthCameraParams().m_imageHeight, "depth.png");
+			Util::writeToImage(g_rayCast->getRayCastData().d_depth, g_rayCast->getRayCastParams().m_width, g_rayCast->getRayCastParams().m_height, "raycast.png");
 
-				break;
-			}
+			break;
+		}
 		case 'N':
 			StopScanningAndSaveSDFHash("test.hashgrid");
 			break;
@@ -439,11 +451,11 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 			StopScanningAndLoadSDFHash("test.hashgrid");
 			break;
 		case 'I':
-			{
-				GlobalAppState::get().s_integrationEnabled = !GlobalAppState::get().s_integrationEnabled;
-				if (GlobalAppState::get().s_integrationEnabled)		std::cout << "integration enabled" << std::endl;
-				else std::cout << "integration disabled" << std::endl;
-			}
+		{
+			GlobalAppState::get().s_integrationEnabled = !GlobalAppState::get().s_integrationEnabled;
+			if (GlobalAppState::get().s_integrationEnabled)		std::cout << "integration enabled" << std::endl;
+			else std::cout << "integration disabled" << std::endl;
+		}
 
 		default:
 			break;
@@ -454,16 +466,16 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 //--------------------------------------------------------------------------------------
 // Handles the GUI events
 //--------------------------------------------------------------------------------------
-void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext )
+void CALLBACK OnGUIEvent(UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext)
 {
-	switch( nControlID )
+	switch (nControlID)
 	{
 		// Standard DXUT controls
 	case IDC_TOGGLEFULLSCREEN:
-		DXUTToggleFullScreen(); 
+		DXUTToggleFullScreen();
 		break;
 	case IDC_TOGGLEREF:
-		DXUTToggleREF(); 
+		DXUTToggleREF();
 		break;
 	case IDC_TEST:
 		break;
@@ -473,7 +485,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 //--------------------------------------------------------------------------------------
 // Reject any D3D11 devices that aren't acceptable by returning false
 //--------------------------------------------------------------------------------------
-bool CALLBACK IsD3D11DeviceAcceptable( const CD3D11EnumAdapterInfo *AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo *DeviceInfo, DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext )
+bool CALLBACK IsD3D11DeviceAcceptable(const CD3D11EnumAdapterInfo* AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo* DeviceInfo, DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext)
 {
 	return true;
 }
@@ -491,16 +503,16 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 
 	ID3D11DeviceContext* pd3dImmediateContext = DXUTGetD3D11DeviceContext();
 
-	V_RETURN( g_DialogResourceManager.OnD3D11CreateDevice( pd3dDevice, pd3dImmediateContext ) );
-	g_pTxtHelper = new CDXUTTextHelper( pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15 );
+	V_RETURN(g_DialogResourceManager.OnD3D11CreateDevice(pd3dDevice, pd3dImmediateContext));
+	g_pTxtHelper = new CDXUTTextHelper(pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15);
 
 	if (getRGBDSensor() == NULL)
 	{
 		std::cout << "No RGBD Sensor specified" << std::endl;
-		while(1);
+		while (1);
 	}
 
-	if ( FAILED( getRGBDSensor()->createFirstConnected() ) )
+	if (FAILED(getRGBDSensor()->createFirstConnected()))
 	{
 		MessageBox(NULL, L"No ready Depth Sensor found!", L"Error", MB_ICONHAND | MB_OK);
 		return S_FALSE;
@@ -532,9 +544,9 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 		V_RETURN(g_RenderToFileTarget.OnD3D11CreateDevice(pd3dDevice, GlobalAppState::get().s_adapterWidth, GlobalAppState::get().s_adapterHeight, rtfFormat));
 	}
 
-	D3DXVECTOR3 vecEye ( 0.0f, 0.0f, 0.0f );
-	D3DXVECTOR3 vecAt ( 0.0f, 0.0f, 1.0f );
-	g_Camera.SetViewParams( &vecEye, &vecAt );
+	D3DXVECTOR3 vecEye(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 vecAt(0.0f, 0.0f, 1.0f);
+	g_Camera.SetViewParams(&vecEye, &vecAt);
 
 	//Util::printMemoryUseMB("renderer");
 
@@ -554,8 +566,8 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 	g_historgram = new CUDAHistrogramHashSDF(g_sceneRep->getHashParams());
 	//Util::printMemoryUseMB("histogram");
 
-	g_chunkGrid = new CUDASceneRepChunkGrid(g_sceneRep, 
-		GlobalAppState::get().s_streamingVoxelExtents, 
+	g_chunkGrid = new CUDASceneRepChunkGrid(g_sceneRep,
+		GlobalAppState::get().s_streamingVoxelExtents,
 		GlobalAppState::get().s_streamingGridDimensions,
 		GlobalAppState::get().s_streamingMinGridPos,
 		GlobalAppState::get().s_streamingInitialChunkListSize,
@@ -583,11 +595,11 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 //--------------------------------------------------------------------------------------
 // Release D3D11 resources created in OnD3D10CreateDevice 
 //--------------------------------------------------------------------------------------
-void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
+void CALLBACK OnD3D11DestroyDevice(void* pUserContext)
 {
 	g_DialogResourceManager.OnD3D11DestroyDevice();
 	DXUTGetGlobalResourceCache().OnDestroyDevice();
-	SAFE_DELETE( g_pTxtHelper );
+	SAFE_DELETE(g_pTxtHelper);
 
 	DX11QuadDrawer::OnD3D11DestroyDevice();
 	DX11PhongLighting::OnD3D11DestroyDevice();
@@ -615,24 +627,24 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 //--------------------------------------------------------------------------------------
 // Create any D3D11 resources that depend on the back buffer
 //--------------------------------------------------------------------------------------
-HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapChain* pSwapChain,
-										 const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext )
+HRESULT CALLBACK OnD3D11ResizedSwapChain(ID3D11Device* pd3dDevice, IDXGISwapChain* pSwapChain,
+	const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext)
 {
 	HRESULT hr = S_OK;
 
-	V_RETURN( g_DialogResourceManager.OnD3D11ResizedSwapChain( pd3dDevice, pBackBufferSurfaceDesc ) );
+	V_RETURN(g_DialogResourceManager.OnD3D11ResizedSwapChain(pd3dDevice, pBackBufferSurfaceDesc));
 
 	// Setup the camera's projection parameters
-	g_Camera.SetWindow( pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height );
-	g_Camera.SetButtonMasks( MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_LEFT_BUTTON );
+	g_Camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
+	g_Camera.SetButtonMasks(MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_LEFT_BUTTON);
 
 	//g_Camera.SetRotateButtons(true, false, false);
 
-	float fAspectRatio = pBackBufferSurfaceDesc->Width / ( FLOAT )pBackBufferSurfaceDesc->Height;
+	float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
 	//D3DXVECTOR3 vecEye ( 0.0f, 0.0f, 0.0f );
 	//D3DXVECTOR3 vecAt ( 0.0f, 0.0f, 1.0f );
 	//g_Camera.SetViewParams( &vecEye, &vecAt );
-	g_Camera.SetProjParams( D3DX_PI / 4, fAspectRatio, 0.1f, 10.0f );
+	g_Camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 10.0f);
 
 
 	V_RETURN(DX11PhongLighting::OnResize(pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height));
@@ -643,7 +655,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 //--------------------------------------------------------------------------------------
 // Release D3D11 resources created in OnD3D10ResizedSwapChain 
 //--------------------------------------------------------------------------------------
-void CALLBACK OnD3D11ReleasingSwapChain( void* pUserContext )
+void CALLBACK OnD3D11ReleasingSwapChain(void* pUserContext)
 {
 	g_DialogResourceManager.OnD3D11ReleasingSwapChain();
 }
@@ -657,9 +669,9 @@ void reconstruction()
 		std::cout << "[ frame " << g_RGBDAdapter.getFrameNumber() << " ] " << " [Free SDFBlocks " << heapFreeCount << " ] " << std::endl;
 		if (heapFreeCount < 5000) std::cout << "WARNING: Heap Free Count is low!  if crash, increase s_hashNumSDFBlocks" << std::endl;
 	}
-	
+
 	mat4f transformation = mat4f::identity();
-	if ((GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader || GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader) 
+	if ((GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader || GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader)
 		&& GlobalAppState::get().s_binaryDumpSensorUseTrajectory) {
 		transformation = g_RGBDAdapter.getRigidTransform();
 
@@ -685,7 +697,7 @@ void reconstruction()
 
 		g_rayCast->render(g_sceneRep->getHashData(), g_sceneRep->getHashParams(), g_CudaDepthSensor.getDepthCameraData(), renderTransform);
 
- 
+
 		if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_NetworkSensor)
 		{
 			mat4f rigid_transform_from_tango = g_RGBDAdapter.getRigidTransform();
@@ -695,11 +707,11 @@ void reconstruction()
 				g_rayCast->getRayCastData().d_depth4, g_rayCast->getRayCastData().d_normals, g_rayCast->getRayCastData().d_colors,
 				g_sceneRep->getLastRigidTransform(),
 				GlobalCameraTrackingState::getInstance().s_maxInnerIter, GlobalCameraTrackingState::getInstance().s_maxOuterIter,
-				GlobalCameraTrackingState::getInstance().s_distThres,	 GlobalCameraTrackingState::getInstance().s_normalThres,
+				GlobalCameraTrackingState::getInstance().s_distThres, GlobalCameraTrackingState::getInstance().s_normalThres,
 				100.0f, 3.0f,
-				g_sceneRep->getLastRigidTransform().getInverse()*rigid_transform_from_tango,
+				g_sceneRep->getLastRigidTransform().getInverse() * rigid_transform_from_tango,
 				GlobalCameraTrackingState::getInstance().s_residualEarlyOut,
-				g_RGBDAdapter.getDepthIntrinsics(), g_CudaDepthSensor.getDepthCameraData(), 
+				g_RGBDAdapter.getDepthIntrinsics(), g_CudaDepthSensor.getDepthCameraData(),
 				NULL);
 			if (transformation(0, 0) == -std::numeric_limits<float>::infinity()) {
 				std::cout << "Tracking lost in DepthSensing..." << std::endl;
@@ -716,7 +728,7 @@ void reconstruction()
 				(GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader || GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader)
 				&& GlobalAppState::get().s_binaryDumpSensorUseTrajectory
 				&& !GlobalAppState::get().s_binaryDumpSensorUseTrajectoryOnlyInit) {
-							
+
 				//actually: nothing to do here; transform is already set: just don't do icp and use pre-recorded trajectory
 
 				//transformation = g_RGBDAdapter.getRigidTransform();
@@ -724,7 +736,8 @@ void reconstruction()
 				//	std::cout << "INVALID FRAME" << std::endl;
 				//	return;					
 				//}
-			} else {
+			}
+			else {
 				mat4f lastTransform = g_sceneRep->getLastRigidTransform();
 				mat4f deltaTransformEstimate = mat4f::identity();
 				//if we have a pre-recorded trajectory; use it as an init (if specificed to do so)
@@ -737,33 +750,42 @@ void reconstruction()
 
 				const bool useRGBDTracking = false;	//Depth vs RGBD
 				if (!useRGBDTracking) {
+#ifndef VINS
+
 					transformation = g_cameraTracking->applyCT(
 						g_CudaDepthSensor.getCameraSpacePositionsFloat4(), g_CudaDepthSensor.getNormalMapFloat4(), g_CudaDepthSensor.getColorMapFilteredFloat4(),
 						//g_rayCast->getRayCastData().d_depth4Transformed, g_CudaDepthSensor.getNormalMapNoRefinementFloat4(), g_CudaDepthSensor.getColorMapFilteredFloat4(),
 						g_rayCast->getRayCastData().d_depth4, g_rayCast->getRayCastData().d_normals, g_rayCast->getRayCastData().d_colors,
 						lastTransform,
 						GlobalCameraTrackingState::getInstance().s_maxInnerIter, GlobalCameraTrackingState::getInstance().s_maxOuterIter,
-						GlobalCameraTrackingState::getInstance().s_distThres,	 GlobalCameraTrackingState::getInstance().s_normalThres,
+						GlobalCameraTrackingState::getInstance().s_distThres, GlobalCameraTrackingState::getInstance().s_normalThres,
 						100.0f, 3.0f,
 						deltaTransformEstimate,
 						GlobalCameraTrackingState::getInstance().s_residualEarlyOut,
-						g_RGBDAdapter.getDepthIntrinsics(), g_CudaDepthSensor.getDepthCameraData(), 
+						g_RGBDAdapter.getDepthIntrinsics(), g_CudaDepthSensor.getDepthCameraData(),
 						NULL);
-				} else {
+
+#else
+					TCPSensor* sensor = (TCPSensor*)getRGBDSensor();
+					transformation = sensor->getRigidTransform();
+#endif // !VINS
+
+				}
+				else {
 					transformation = g_cameraTrackingRGBD->applyCT(
 						//g_rayCast->getRayCastData().d_depth4Transformed, g_CudaDepthSensor.getColorMapFilteredFloat4(),
 						g_CudaDepthSensor.getCameraSpacePositionsFloat4(), g_CudaDepthSensor.getNormalMapFloat4(), g_CudaDepthSensor.getColorMapFilteredFloat4(),
-						g_rayCast->getRayCastData().d_depth4, g_rayCast->getRayCastData().d_normals,  g_rayCast->getRayCastData().d_colors, //g_CudaDepthSensor.getColorMapFilteredLastFrameFloat4(), // g_rayCast->getRayCastData().d_colors,
+						g_rayCast->getRayCastData().d_depth4, g_rayCast->getRayCastData().d_normals, g_rayCast->getRayCastData().d_colors, //g_CudaDepthSensor.getColorMapFilteredLastFrameFloat4(), // g_rayCast->getRayCastData().d_colors,
 						lastTransform,
 						GlobalCameraTrackingState::getInstance().s_maxInnerIter, GlobalCameraTrackingState::getInstance().s_maxOuterIter,
-						GlobalCameraTrackingState::getInstance().s_distThres,	 GlobalCameraTrackingState::getInstance().s_normalThres,
+						GlobalCameraTrackingState::getInstance().s_distThres, GlobalCameraTrackingState::getInstance().s_normalThres,
 						GlobalCameraTrackingState::getInstance().s_colorGradientMin, GlobalCameraTrackingState::getInstance().s_colorThres,
 						100.0f, 3.0f,
 						deltaTransformEstimate,
 						GlobalCameraTrackingState::getInstance().s_weightsDepth,
 						GlobalCameraTrackingState::getInstance().s_weightsColor,
 						GlobalCameraTrackingState::getInstance().s_residualEarlyOut,
-						g_RGBDAdapter.getDepthIntrinsics(), g_CudaDepthSensor.getDepthCameraData(), 
+						g_RGBDAdapter.getDepthIntrinsics(), g_CudaDepthSensor.getDepthCameraData(),
 						NULL);
 				}
 			}
@@ -785,7 +807,7 @@ void reconstruction()
 	}
 
 	if (GlobalAppState::get().s_streamingEnabled) {
-		vec4f posWorld = transformation*GlobalAppState::getInstance().s_streamingPos; // trans laggs one frame *trans
+		vec4f posWorld = transformation * GlobalAppState::getInstance().s_streamingPos; // trans laggs one frame *trans
 		vec3f p(posWorld.x, posWorld.y, posWorld.z);
 
 		if (GlobalAppState::get().s_offlineProcessing) {
@@ -807,7 +829,8 @@ void reconstruction()
 
 	if (GlobalAppState::get().s_integrationEnabled) {
 		g_sceneRep->integrate(transformation, g_CudaDepthSensor.getDepthCameraData(), g_CudaDepthSensor.getDepthCameraParams(), g_chunkGrid->getBitMaskGPU());
-	} else {
+	}
+	else {
 		//compactification is required for the raycast splatting
 		g_sceneRep->setLastRigidTransformAndCompactify(transformation, g_CudaDepthSensor.getDepthCameraData());
 	}
@@ -828,7 +851,7 @@ void reconstruction()
 // Render the scene using the D3D11 device
 //--------------------------------------------------------------------------------------
 
-void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime, float fElapsedTime, void* pUserContext )
+void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime, float fElapsedTime, void* pUserContext)
 {
 	//g_historgram->computeHistrogram(g_sceneRep->getHashData(), g_sceneRep->getHashParams());
 
@@ -889,7 +912,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	mat4f view = MatrixConversion::toMlib(*g_Camera.GetViewMatrix());
 
 	mat4f t = mat4f::identity();
-	t(1,1) *= -1.0f;	view = t * view * t;	//t is self-inverse
+	t(1, 1) *= -1.0f;	view = t * view * t;	//t is self-inverse
 
 	if (bGotDepth == S_OK) {
 		if (GlobalAppState::getInstance().s_recordData) {
@@ -904,7 +927,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 		}
 	}
 
-	if(GlobalAppState::get().s_RenderMode == 0) {
+	if (GlobalAppState::get().s_RenderMode == 0) {
 		const mat4f renderIntrinsics = g_RGBDAdapter.getColorIntrinsics();
 
 		g_CustomRenderTarget.Clear(pd3dImmediateContext);
@@ -914,7 +937,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 		DX11PhongLighting::render(pd3dImmediateContext, g_CustomRenderTarget.GetSRV(1), g_CustomRenderTarget.GetSRV(2), g_CustomRenderTarget.GetSRV(3), GlobalAppState::get().s_useColorForRendering, g_CustomRenderTarget.getWidth(), g_CustomRenderTarget.getHeight());
 		DX11QuadDrawer::RenderQuad(pd3dImmediateContext, DX11PhongLighting::GetColorsSRV(), 1.0f);
 	}
-	else if(GlobalAppState::get().s_RenderMode == 1)
+	else if (GlobalAppState::get().s_RenderMode == 1)
 	{
 		//default render mode
 		const mat4f& renderIntrinsics = g_RGBDAdapter.getColorIntrinsics();
@@ -925,12 +948,12 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 		g_RGBDRenderer.RenderDepthMap(pd3dImmediateContext, g_rayCast->getRayCastData().d_depth, g_rayCast->getRayCastData().d_colors, g_rayCast->getRayCastParams().m_width, g_rayCast->getRayCastParams().m_height, MatrixConversion::toMlib(g_rayCast->getRayCastParams().m_intrinsicsInverse), view, renderIntrinsics, g_CustomRenderTarget.getWidth(), g_CustomRenderTarget.getHeight(), GlobalAppState::get().s_renderingDepthDiscontinuityThresOffset, GlobalAppState::get().s_renderingDepthDiscontinuityThresLin);
 		g_CustomRenderTarget.Unbind(pd3dImmediateContext);
 
-		DX11PhongLighting::render(pd3dImmediateContext, g_CustomRenderTarget.GetSRV(1), g_CustomRenderTarget.GetSRV(2), g_CustomRenderTarget.GetSRV(3), GlobalAppState::get().s_useColorForRendering, g_CustomRenderTarget.getWidth(), g_CustomRenderTarget.getHeight());		
+		DX11PhongLighting::render(pd3dImmediateContext, g_CustomRenderTarget.GetSRV(1), g_CustomRenderTarget.GetSRV(2), g_CustomRenderTarget.GetSRV(3), GlobalAppState::get().s_useColorForRendering, g_CustomRenderTarget.getWidth(), g_CustomRenderTarget.getHeight());
 		DX11QuadDrawer::RenderQuad(pd3dImmediateContext, DX11PhongLighting::GetColorsSRV(), 1.0f);
 #ifdef STRUCTURE_SENSOR
 		if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_StructureSensor) {
 			ID3D11Texture2D* pSurface;
-			HRESULT hr = DXUTGetDXGISwapChain()->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast< void** >( &pSurface ) );
+			HRESULT hr = DXUTGetDXGISwapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pSurface));
 			if (pSurface) {
 				float* tex = (float*)CreateAndCopyToDebugTexture2D(pd3dDevice, pd3dImmediateContext, pSurface, true); //!!! TODO just copy no create
 				((StructureSensor*)getRGBDSensor())->updateFeedbackImage((BYTE*)tex);
@@ -939,17 +962,17 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 		}
 #endif
 	}
-	else if(GlobalAppState::get().s_RenderMode == 2) {
+	else if (GlobalAppState::get().s_RenderMode == 2) {
 		//DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_CudaDepthSensor.getCameraSpacePositionsFloat4(), 4, g_CudaDepthSensor.getColorWidth(), g_CudaDepthSensor.getColorHeight());
 		DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_CudaDepthSensor.getAndComputeDepthHSV(), 4, g_CudaDepthSensor.getColorWidth(), g_CudaDepthSensor.getColorHeight());
 	}
-	else if(GlobalAppState::get().s_RenderMode == 3) {
+	else if (GlobalAppState::get().s_RenderMode == 3) {
 		DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_CudaDepthSensor.getColorMapFilteredFloat4(), 4, g_CudaDepthSensor.getColorWidth(), g_CudaDepthSensor.getColorHeight());
 	}
-	else if(GlobalAppState::get().s_RenderMode == 4) {
+	else if (GlobalAppState::get().s_RenderMode == 4) {
 		DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_CudaDepthSensor.getNormalMapFloat4(), 4, g_CudaDepthSensor.getColorWidth(), g_CudaDepthSensor.getColorHeight());
 	}
-	else if(GlobalAppState::get().s_RenderMode == 5) {
+	else if (GlobalAppState::get().s_RenderMode == 5) {
 		//DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_rayCast->getRayCastData().d_colors, 4, g_rayCast->getRayCastParams().m_width, g_rayCast->getRayCastParams().m_height);
 
 		//default render mode
@@ -963,13 +986,13 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 		DX11PhongLighting::render(pd3dImmediateContext, g_CustomRenderTarget.GetSRV(1), g_CustomRenderTarget.GetSRV(2), g_CustomRenderTarget.GetSRV(3), !GlobalAppState::get().s_useColorForRendering, g_CustomRenderTarget.getWidth(), g_CustomRenderTarget.getHeight());
 		DX11QuadDrawer::RenderQuad(pd3dImmediateContext, DX11PhongLighting::GetColorsSRV(), 1.0f);
 	}
-	else if(GlobalAppState::get().s_RenderMode == 6) {
+	else if (GlobalAppState::get().s_RenderMode == 6) {
 		//DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_rayCast->getRayCastData().d_depth4DV, 4, g_rayCast->getRayCastParams().m_width, g_rayCast->getRayCastParams().m_height, 500.0f);	
 	}
-	else if(GlobalAppState::get().s_RenderMode == 8) {
+	else if (GlobalAppState::get().s_RenderMode == 8) {
 		//DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_CudaDepthSensor.getColorMapFilteredLastFrameFloat4(), 4, g_CudaDepthSensor.getColorWidth(), g_CudaDepthSensor.getColorHeight());
 	}
-	else if(GlobalAppState::get().s_RenderMode == 9) {
+	else if (GlobalAppState::get().s_RenderMode == 9) {
 		const mat4f& renderIntrinsics = g_RGBDAdapter.getColorIntrinsics();
 
 		g_CustomRenderTarget.Clear(pd3dImmediateContext);
@@ -1044,16 +1067,16 @@ void renderToFile(ID3D11DeviceContext* pd3dImmediateContext) {
 
 		bool colored = false;
 		DX11PhongLighting::render(pd3dImmediateContext, g_CustomRenderTarget.GetSRV(1), g_CustomRenderTarget.GetSRV(2), g_CustomRenderTarget.GetSRV(3), colored, g_CustomRenderTarget.getWidth(), g_CustomRenderTarget.getHeight());
-		
+
 		g_RenderToFileTarget.Clear(pd3dImmediateContext);
 		g_RenderToFileTarget.Bind(pd3dImmediateContext);
 		DX11QuadDrawer::RenderQuad(pd3dImmediateContext, DX11PhongLighting::GetColorsSRV(), 1.0f);
 		g_RenderToFileTarget.Unbind(pd3dImmediateContext);
-		
+
 		BYTE* data; unsigned int bytesPerElement;
 		g_RenderToFileTarget.copyToHost(data, bytesPerElement);
 		ColorImageR8G8B8A8 image(g_RenderToFileTarget.getHeight(), g_RenderToFileTarget.getWidth(), (vec4uc*)data);
-		for (unsigned int i = 0; i < image.getWidth()*image.getHeight(); i++) {
+		for (unsigned int i = 0; i < image.getWidth() * image.getHeight(); i++) {
 			if (image.getDataPointer()[i].x > 0 || image.getDataPointer()[i].y > 0 || image.getDataPointer()[i].z > 0)
 				image.getDataPointer()[i].w = 255;
 		}
@@ -1080,7 +1103,7 @@ void renderToFile(ID3D11DeviceContext* pd3dImmediateContext) {
 		BYTE* data; unsigned int bytesPerElement;
 		g_RenderToFileTarget.copyToHost(data, bytesPerElement);
 		ColorImageR8G8B8A8 image(g_RenderToFileTarget.getHeight(), g_RenderToFileTarget.getWidth(), (vec4uc*)data);
-		for (unsigned int i = 0; i < image.getWidth()*image.getHeight(); i++) {
+		for (unsigned int i = 0; i < image.getWidth() * image.getHeight(); i++) {
 			if (image.getDataPointer()[i].x > 0 || image.getDataPointer()[i].y > 0 || image.getDataPointer()[i].z > 0)
 				image.getDataPointer()[i].w = 255;
 		}
@@ -1091,7 +1114,7 @@ void renderToFile(ID3D11DeviceContext* pd3dImmediateContext) {
 	// for input color/depth
 	{	// input color
 		ColorImageR8G8B8A8 image(getRGBDSensor()->getColorHeight(), getRGBDSensor()->getColorWidth(), (vec4uc*)getRGBDSensor()->getColorRGBX());
-		for (unsigned int i = 0; i < image.getWidth()*image.getHeight(); i++) {
+		for (unsigned int i = 0; i < image.getWidth() * image.getHeight(); i++) {
 			if (image.getDataPointer()[i].x > 0 || image.getDataPointer()[i].y > 0 || image.getDataPointer()[i].z > 0)
 				image.getDataPointer()[i].w = 255;
 		}
@@ -1100,7 +1123,7 @@ void renderToFile(ID3D11DeviceContext* pd3dImmediateContext) {
 	{	// input depth
 		DepthImage depthImage(getRGBDSensor()->getDepthHeight(), getRGBDSensor()->getDepthWidth(), getRGBDSensor()->getDepthFloat());
 		ColorImageR32G32B32A32 image(depthImage);
-		for (unsigned int i = 0; i < image.getWidth()*image.getHeight(); i++) {
+		for (unsigned int i = 0; i < image.getWidth() * image.getHeight(); i++) {
 			if (image.getDataPointer()[i].x > 0 || image.getDataPointer()[i].y > 0 || image.getDataPointer()[i].z > 0)
 				image.getDataPointer()[i].w = 1.0f;
 			if (depthImage.getDataPointer()[i] == 0.0f || depthImage.getDataPointer()[i] == -std::numeric_limits<float>::infinity())
@@ -1139,7 +1162,7 @@ int main(int argc, char** argv)
 			std::cout << "usage: DepthSensing [fileNameDescGlobalApp] [fileNameDescGlobalTracking]" << std::endl;
 			//fileNameDescGlobalApp = "zParametersDefault.txt";
 			fileNameDescGlobalApp = "zParametersManolisScan.txt";
-			
+
 			fileNameDescGlobalTracking = "zParametersTrackingDefault.txt";
 		}
 		std::cout << VAR_NAME(fileNameDescGlobalApp) << " = " << fileNameDescGlobalApp << std::endl;
@@ -1152,7 +1175,7 @@ int main(int argc, char** argv)
 		if (argc >= 4) //for scan net: overwrite .sens file
 		{
 			for (unsigned int i = 0; i < (unsigned int)argc - 3; i++) {
-				const std::string filename = std::string(argv[i+3]);
+				const std::string filename = std::string(argv[i + 3]);
 				const std::string paramName = "s_binaryDumpSensorFile[" + std::to_string(i) + "]";
 				parameterFileGlobalApp.overrideParameter(paramName, filename);
 				std::cout << "Overwriting s_binaryDumpSensorFile; now set to " << filename << std::endl;
@@ -1180,12 +1203,12 @@ int main(int argc, char** argv)
 			auto& gas = GlobalAppState::get();
 
 			float chunkExt = std::max(std::max(gas.s_streamingVoxelExtents.x, gas.s_streamingVoxelExtents.y), gas.s_streamingVoxelExtents.z);
-			float chunkRadius = 0.5f*chunkExt*sqrt(3.0f);
+			float chunkRadius = 0.5f * chunkExt * sqrt(3.0f);
 
 			float frustExt = gas.s_SDFMaxIntegrationDistance - gas.s_sensorDepthMin;
-			float frustRadius = 0.5f*frustExt*sqrt(3.0f);	//this assumes that the fov is less than 90 degree
+			float frustRadius = 0.5f * frustExt * sqrt(3.0f);	//this assumes that the fov is less than 90 degree
 
-			gas.s_streamingPos = vec3f(0.0f, 0.0f, gas.s_sensorDepthMin + 0.5f*frustExt);
+			gas.s_streamingPos = vec3f(0.0f, 0.0f, gas.s_sensorDepthMin + 0.5f * frustExt);
 			gas.s_streamingRadius = frustRadius + chunkRadius;
 
 			std::cout << "overwriting s_streamingPos,\t now " << gas.s_streamingPos << std::endl;

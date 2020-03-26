@@ -167,6 +167,9 @@
     <ClCompile Include="Source\StructureSensor.cpp">
       <Filter>Sensors</Filter>
     </ClCompile>
+    <ClCompile Include="Source\TCPSensor.cpp">
+      <Filter>Sensors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CameraParams.h" />
@@ -332,6 +335,9 @@
     </ClInclude>
     <ClInclude Include="Source\CUDATimer.h">
       <Filter>CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TCPSensor.h">
+      <Filter>Sensors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

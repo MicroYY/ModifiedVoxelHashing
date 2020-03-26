@@ -98,7 +98,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VINS;WIN32;NDEBUG;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>Source\DXUT\Optional;Source\DXUT\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
@@ -210,6 +210,7 @@
     </ClCompile>
     <ClCompile Include="Source\StdOutputLogger.cpp" />
     <ClCompile Include="Source\StructureSensor.cpp" />
+    <ClCompile Include="Source\TCPSensor.cpp" />
     <ClCompile Include="Source\TimingLog.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -274,6 +275,7 @@
     <ClInclude Include="Source\StdOutputLogger.h" />
     <ClInclude Include="Source\StructureSensor.h" />
     <ClInclude Include="Source\Tables.h" />
+    <ClInclude Include="Source\TCPSensor.h" />
     <ClInclude Include="Source\TimingLog.h" />
     <ClInclude Include="Source\Util.h" />
     <ClInclude Include="Source\VoxelUtilHashSDF.h" />

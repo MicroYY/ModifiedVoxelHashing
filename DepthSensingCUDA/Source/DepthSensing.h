@@ -19,6 +19,7 @@
 #include "NetworkSensor.h"
 #include "IntelSensor.h"
 #include "RealSenseSensor.h"
+#include "TCPSensor.h"
 
 
 #include "DXUT.h"
