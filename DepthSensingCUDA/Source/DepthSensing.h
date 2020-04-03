@@ -20,6 +20,8 @@
 #include "IntelSensor.h"
 #include "RealSenseSensor.h"
 #include "TCPSensor.h"
+#include "LocalSensor.h"
+
 
 
 #include "DXUT.h"

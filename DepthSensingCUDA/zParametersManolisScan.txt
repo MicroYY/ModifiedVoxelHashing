@@ -1,5 +1,5 @@
-// 0=Kinect; 1=PrimeSense; 2=KinectOne; 3=BinaryDumpReader; 4=NetworkSensor; 5=IntelSensor; 6=RealSense; 7=StructureSensor; 8=SensorDataReader; 9=TCPSensor
-s_sensorIdx = 9;
+// 0=Kinect; 1=PrimeSense; 2=KinectOne; 3=BinaryDumpReader; 4=NetworkSensor; 5=IntelSensor; 6=RealSense; 7=StructureSensor; 8=SensorDataReader; 9=TCPSensor; 10=MynteyeSensor; 11=LocalSensor
+s_sensorIdx = 11;
 
 //s_windowWidth = 1280;		//render window width
 //s_windowHeight = 960;		//render window height
@@ -107,3 +107,7 @@ s_renderToFile = false;				//for making paper videos: renders all input/raycasts
 s_renderToFileDir = "./output/";
 
 s_offlineProcessing = false;			//slower, but makes sure that all voxels are alllocated and streaming all blocks is enforced
+
+s_groundTruthPose = true;
+s_groundTruthPoseIter = false;
+s_dataWithPose = true;

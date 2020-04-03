@@ -1,5 +1,5 @@
 #pragma once
- 
+
 //#define KINECT
 #define KINECT_ONE
 //#define OPEN_NI
@@ -9,6 +9,7 @@
 //#define STRUCTURE_SENSOR
 #define SENSOR_DATA_READER
 #define TCP_SENSOR
+#define LOCAL_SENSOR
 
 //#define OBJECT_SENSING
 
@@ -98,7 +99,10 @@
 	X(bool, s_reconstructionEnabled) \
 	X(bool, s_renderToFile) \
 	X(std::string, s_renderToFileDir) \
-	X(bool, s_offlineProcessing)
+	X(bool, s_offlineProcessing) \
+	X(bool, s_groundTruthPose) \
+	X(bool, s_groundTruthPoseIter) \
+	X(bool, s_dataWithPose) \
 
 
 #ifndef VAR_NAME
@@ -110,7 +114,7 @@
 class GlobalAppState
 {
 public:
-	enum SENSOR_IDX 
+	enum SENSOR_IDX
 	{
 		Sensor_Kinect = 0,
 		Sensor_PrimeSense = 1,
@@ -121,7 +125,9 @@ public:
 		Sensor_RealSense = 6,
 		Sensor_StructureSensor = 7,
 		Sensor_SensorDataReader = 8,
-		Sensor_TCPSensor = 9
+		Sensor_TCPSensor = 9,
+		Sensor_Mynteye = 10,
+		Sensor_LocalSensor = 11
 	};
 
 #define X(type, name) type name;
@@ -129,7 +135,7 @@ public:
 #undef X
 
 		//! sets the parameter file and reads
-	void readMembers(const ParameterFile& parameterFile) {
+		void readMembers(const ParameterFile& parameterFile) {
 		m_ParameterFile = parameterFile;
 		readMembers();
 	}
@@ -140,9 +146,9 @@ public:
 	if (!m_ParameterFile.readParameter(std::string(#name), name)) {MLIB_WARNING(std::string(#name).append(" ").append("uninitialized"));	name = type();}
 		X_GLOBAL_APP_STATE_FIELDS
 #undef X
- 
 
-		m_bIsInitialized = true;
+
+			m_bIsInitialized = true;
 	}
 
 	void print() const {
@@ -182,5 +188,5 @@ public:
 private:
 	bool			m_bIsInitialized;
 	ParameterFile	m_ParameterFile;
-	ID3D11Query*	m_pQuery;
+	ID3D11Query* m_pQuery;
 };

@@ -37,6 +37,7 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\props\opencv-4.2.0-release.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -98,7 +99,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <PreprocessorDefinitions>VINS;WIN32;NDEBUG;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>Source\DXUT\Optional;Source\DXUT\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
@@ -198,6 +199,7 @@
     <ClCompile Include="Source\IntelSensor.cpp" />
     <ClCompile Include="Source\KinectOneSensor.cpp" />
     <ClCompile Include="Source\KinectSensor.cpp" />
+    <ClCompile Include="Source\LocalSensor.cpp" />
     <ClCompile Include="Source\NetworkSensor.cpp" />
     <ClCompile Include="Source\NetworkServer.cpp" />
     <ClCompile Include="Source\PrimeSenseSensor.cpp" />
@@ -260,6 +262,7 @@
     <ClInclude Include="Source\IntelSensor.h" />
     <ClInclude Include="Source\KinectOneSensor.h" />
     <ClInclude Include="Source\KinectSensor.h" />
+    <ClInclude Include="Source\LocalSensor.h" />
     <ClInclude Include="Source\MarchingCubesSDFUtil.h" />
     <ClInclude Include="Source\MatrixConversion.h" />
     <ClInclude Include="Source\mLib.h" />

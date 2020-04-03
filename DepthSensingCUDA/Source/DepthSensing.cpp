@@ -45,6 +45,16 @@ RGBDSensor* getRGBDSensor()
 #endif
 	}
 
+
+	if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_LocalSensor)
+	{
+#ifdef LOCAL_SENSOR
+		g_sensor = new LocalSensor;
+		return g_sensor;
+#endif // LOCAL_SENSOR
+
+	}
+
 	if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_Kinect) {
 #ifdef KINECT
 		//static KinectSensor s_kinect;
@@ -455,8 +465,12 @@ void CALLBACK OnKeyboard(UINT nChar, bool bKeyDown, bool bAltDown, void* pUserCo
 			GlobalAppState::get().s_integrationEnabled = !GlobalAppState::get().s_integrationEnabled;
 			if (GlobalAppState::get().s_integrationEnabled)		std::cout << "integration enabled" << std::endl;
 			else std::cout << "integration disabled" << std::endl;
+			break;
 		}
-
+		case VK_SPACE:
+		{
+			GlobalAppState::get().s_reconstructionEnabled = !GlobalAppState::get().s_reconstructionEnabled;
+		}
 		default:
 			break;
 		}
@@ -664,14 +678,22 @@ void reconstruction()
 {
 
 	//only if binary dump
-	if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader || GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader) {
+	if (GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader
+		|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader
+		|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_TCPSensor
+		|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_LocalSensor) {
 		unsigned int heapFreeCount = g_sceneRep->getHeapFreeCount();
 		std::cout << "[ frame " << g_RGBDAdapter.getFrameNumber() << " ] " << " [Free SDFBlocks " << heapFreeCount << " ] " << std::endl;
 		if (heapFreeCount < 5000) std::cout << "WARNING: Heap Free Count is low!  if crash, increase s_hashNumSDFBlocks" << std::endl;
 	}
 
 	mat4f transformation = mat4f::identity();
-	if ((GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader || GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader)
+	if (
+		(GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader
+			|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader
+			|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_TCPSensor
+			|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_LocalSensor
+			)
 		&& GlobalAppState::get().s_binaryDumpSensorUseTrajectory) {
 		transformation = g_RGBDAdapter.getRigidTransform();
 
@@ -685,7 +707,11 @@ void reconstruction()
 	if (g_RGBDAdapter.getFrameNumber() > 1) {
 		mat4f renderTransform = g_sceneRep->getLastRigidTransform();
 		//if we have a pre-recorded trajectory; use it as an init (if specificed to do so)
-		if ((GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader || GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader)
+		if (
+			(GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader
+				|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader
+				|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_TCPSensor
+				|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_LocalSensor)
 			&& GlobalAppState::get().s_binaryDumpSensorUseTrajectory
 			&& GlobalAppState::get().s_binaryDumpSensorUseTrajectoryOnlyInit) {
 			//deltaTransformEstimate = lastTransform.getInverse() * transformation;
@@ -725,7 +751,10 @@ void reconstruction()
 				transformation.setIdentity();
 			}
 			else if (
-				(GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader || GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader)
+				(GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader
+					|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader
+					|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_TCPSensor
+					|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_LocalSensor)
 				&& GlobalAppState::get().s_binaryDumpSensorUseTrajectory
 				&& !GlobalAppState::get().s_binaryDumpSensorUseTrajectoryOnlyInit) {
 
@@ -741,7 +770,11 @@ void reconstruction()
 				mat4f lastTransform = g_sceneRep->getLastRigidTransform();
 				mat4f deltaTransformEstimate = mat4f::identity();
 				//if we have a pre-recorded trajectory; use it as an init (if specificed to do so)
-				if ((GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader || GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader)
+				if (
+					(GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_BinaryDumpReader
+						|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_SensorDataReader
+						|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_TCPSensor
+						|| GlobalAppState::get().s_sensorIdx == GlobalAppState::Sensor_LocalSensor)
 					&& GlobalAppState::get().s_binaryDumpSensorUseTrajectory
 					&& GlobalAppState::get().s_binaryDumpSensorUseTrajectoryOnlyInit) {
 					//deltaTransformEstimate = lastTransform.getInverse() * transformation;	//simple case; not ideal in case of drift
@@ -750,8 +783,6 @@ void reconstruction()
 
 				const bool useRGBDTracking = false;	//Depth vs RGBD
 				if (!useRGBDTracking) {
-#ifndef VINS
-
 					transformation = g_cameraTracking->applyCT(
 						g_CudaDepthSensor.getCameraSpacePositionsFloat4(), g_CudaDepthSensor.getNormalMapFloat4(), g_CudaDepthSensor.getColorMapFilteredFloat4(),
 						//g_rayCast->getRayCastData().d_depth4Transformed, g_CudaDepthSensor.getNormalMapNoRefinementFloat4(), g_CudaDepthSensor.getColorMapFilteredFloat4(),
@@ -764,12 +795,6 @@ void reconstruction()
 						GlobalCameraTrackingState::getInstance().s_residualEarlyOut,
 						g_RGBDAdapter.getDepthIntrinsics(), g_CudaDepthSensor.getDepthCameraData(),
 						NULL);
-
-#else
-					TCPSensor* sensor = (TCPSensor*)getRGBDSensor();
-					transformation = sensor->getRigidTransform();
-#endif // !VINS
-
 				}
 				else {
 					transformation = g_cameraTrackingRGBD->applyCT(
@@ -893,8 +918,10 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 #endif
 
 	// if we have received any valid new depth data we may need to draw
-	HRESULT bGotDepth = g_CudaDepthSensor.process(pd3dImmediateContext);
-
+	HRESULT bGotDepth;
+	if (GlobalAppState::get().s_reconstructionEnabled) {
+		bGotDepth = g_CudaDepthSensor.process(pd3dImmediateContext);
+	}
 	// Filtering
 	g_CudaDepthSensor.setFiterDepthValues(GlobalAppState::get().s_depthFilter, GlobalAppState::get().s_depthSigmaD, GlobalAppState::get().s_depthSigmaR);
 	g_CudaDepthSensor.setFiterIntensityValues(GlobalAppState::get().s_colorFilter, GlobalAppState::get().s_colorSigmaD, GlobalAppState::get().s_colorSigmaR);
@@ -959,9 +986,9 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 				((StructureSensor*)getRGBDSensor())->updateFeedbackImage((BYTE*)tex);
 				SAFE_DELETE_ARRAY(tex);
 			}
-		}
-#endif
 	}
+#endif
+}
 	else if (GlobalAppState::get().s_RenderMode == 2) {
 		//DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_CudaDepthSensor.getCameraSpacePositionsFloat4(), 4, g_CudaDepthSensor.getColorWidth(), g_CudaDepthSensor.getColorHeight());
 		DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_CudaDepthSensor.getAndComputeDepthHSV(), 4, g_CudaDepthSensor.getColorWidth(), g_CudaDepthSensor.getColorHeight());

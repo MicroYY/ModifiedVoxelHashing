@@ -138,47 +138,45 @@ HRESULT TCPSensor::processDepth()
 	{
 		iRet += recv(clientSocket, &recvImg[iRet], bufSize - iRet, 0);
 	}
+	if (GlobalAppState::get().s_dataWithPose) {
+		//#ifdef VINS
+		iRet = recv(clientSocket, recvPose, 28, 0);
+		while (iRet != 28)
+		{
+			iRet += recv(clientSocket, &recvPose[iRet], 28 - iRet, 0);
+		}
+		RT = (float*)recvPose;
 
-#ifdef VINS
-	iRet = recv(clientSocket, recvPose, 28, 0);
-	while (iRet != 28)
-	{
-		iRet += recv(clientSocket, &recvPose[iRet], 28 - iRet, 0);
+		float q0 = RT[3];
+		float q1 = RT[0];
+		float q2 = RT[1];
+		float q3 = RT[2];
+
+		m_rigidTransform._m00 = 1.f - 2.f * q2 * q2 - 2.f * q3 * q3;
+		m_rigidTransform._m01 = 2.f * q1 * q2 - 2.f * q0 * q3;
+		m_rigidTransform._m02 = 2.f * q1 * q3 + 2.f * q0 * q2;
+		m_rigidTransform._m03 = RT[4];
+
+		m_rigidTransform._m10 = 2 * q1 * q2 + 2 * q0 * q3;
+		m_rigidTransform._m11 = 1 - 2 * q1 * q1 - 2 * q3 * q3;
+		m_rigidTransform._m12 = 2 * q2 * q3 - 2 * q0 * q1;
+		m_rigidTransform._m13 = RT[5];
+
+		m_rigidTransform._m20 = 2 * q1 * q3 - 2 * q0 * q2;
+		m_rigidTransform._m21 = 2 * q2 * q3 + 2 * q0 * q1;
+		m_rigidTransform._m22 = 1 - 2 * q1 * q1 - 2 * q2 * q2;
+		m_rigidTransform._m23 = RT[6];
+
+		m_rigidTransform._m30 = 0;
+		m_rigidTransform._m31 = 0;
+		m_rigidTransform._m32 = 0;
+		m_rigidTransform._m33 = 1;
+
+		std::cout << m_rigidTransform << "\n";
+		//#endif // VINS
 	}
-	RT = (float*)recvPose;
-
-	float q0 = RT[3];
-	float q1 = RT[0];
-	float q2 = RT[1];
-	float q3 = RT[2];
-
-	m_rigidTransform._m00 = 1.f - 2.f * q2 * q2 - 2.f * q3 * q3;
-	m_rigidTransform._m01 = 2.f * q1 * q2 - 2.f * q0 * q3;
-	m_rigidTransform._m02 = 2.f * q1 * q3 + 2.f * q0 * q2;
-	m_rigidTransform._m03 = RT[4];
-
-	m_rigidTransform._m10 = 2 * q1 * q2 + 2 * q0 * q3;
-	m_rigidTransform._m11 = 1 - 2 * q1 * q1 - 2 * q3 * q3;
-	m_rigidTransform._m12 = 2 * q2 * q3 - 2 * q0 * q1;
-	m_rigidTransform._m13 = RT[5];
-
-	m_rigidTransform._m20 = 2 * q1 * q3 - 2 * q0 * q2;
-	m_rigidTransform._m21 = 2 * q2 * q3 + 2 * q0 * q1;
-	m_rigidTransform._m22 = 1 - 2 * q1 * q1 - 2 * q2 * q2;
-	m_rigidTransform._m23 = RT[6];
-
-	m_rigidTransform._m30 = 0;
-	m_rigidTransform._m31 = 0;
-	m_rigidTransform._m32 = 0;
-	m_rigidTransform._m33 = 1;
-
-	std::cout << m_rigidTransform << "\n";
-#endif // VINS
-
-
 
 	float* depth = getDepthFloat();
-
 	//#pragma omp parallel for num_threads(4)
 	for (int i = 0; i < depthHeight; i++)
 	{
