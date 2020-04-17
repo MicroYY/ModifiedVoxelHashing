@@ -918,7 +918,7 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 #endif
 
 	// if we have received any valid new depth data we may need to draw
-	HRESULT bGotDepth;
+	HRESULT bGotDepth = S_FALSE;
 	if (GlobalAppState::get().s_reconstructionEnabled) {
 		bGotDepth = g_CudaDepthSensor.process(pd3dImmediateContext);
 	}
@@ -986,9 +986,9 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 				((StructureSensor*)getRGBDSensor())->updateFeedbackImage((BYTE*)tex);
 				SAFE_DELETE_ARRAY(tex);
 			}
-	}
+		}
 #endif
-}
+	}
 	else if (GlobalAppState::get().s_RenderMode == 2) {
 		//DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_CudaDepthSensor.getCameraSpacePositionsFloat4(), 4, g_CudaDepthSensor.getColorWidth(), g_CudaDepthSensor.getColorHeight());
 		DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_CudaDepthSensor.getAndComputeDepthHSV(), 4, g_CudaDepthSensor.getColorWidth(), g_CudaDepthSensor.getColorHeight());
@@ -1034,6 +1034,18 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 	// Stop Timing
 	if (GlobalAppState::get().s_timingsDetailledEnabled) { GlobalAppState::get().WaitForGPU(); GlobalAppState::get().s_Timer.stop(); TimingLog::totalTimeRender += GlobalAppState::get().s_Timer.getElapsedTimeMS(); TimingLog::countTimeRender++; }
 
+	/*if (g_RGBDAdapter.getFrameNumber() == 230
+		|| g_RGBDAdapter.getFrameNumber() == 570
+		|| g_RGBDAdapter.getFrameNumber() == 1146
+		|| g_RGBDAdapter.getFrameNumber() == 1228
+		|| g_RGBDAdapter.getFrameNumber() == 1341
+		|| g_RGBDAdapter.getFrameNumber() == 1492)
+	{
+		wchar_t sz[200];
+		swprintf_s(sz, 200, L"screenshot%d.bmp", whichScreenshot++);
+		DXUTSnapD3D11Screenshot(sz, D3DX11_IFF_BMP);
+		std::wcout << std::wstring(sz) << std::endl;
+	}*/
 
 	TimingLog::printTimings();
 	if (g_renderText) RenderText();

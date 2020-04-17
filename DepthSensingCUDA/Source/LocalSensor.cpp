@@ -27,7 +27,7 @@ LocalSensor::LocalSensor()
 	initializeColorExtrinsics(mat4f::identity());
 
 	frameNum = 1;
-	path = "D:/Code/TestingCode/data/mynt";
+	path = "D:/Code/TestingCode/data/mynt/stone";
 	pose = (float*)malloc(sizeof(float) * 7);
 }
 
@@ -167,7 +167,7 @@ HRESULT LocalSensor::processColor()
 	}
 
 	frameNum++;
-	if (frameNum == 2045)
+	if (frameNum == 1641)
 	{
 		frameNum = 1;
 	}
