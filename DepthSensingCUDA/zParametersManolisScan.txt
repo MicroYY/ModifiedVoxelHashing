@@ -1,4 +1,4 @@
-// 0=Kinect; 1=PrimeSense; 2=KinectOne; 3=BinaryDumpReader; 4=NetworkSensor; 5=IntelSensor; 6=RealSense; 7=StructureSensor; 8=SensorDataReader; 9=TCPSensor; 10=MynteyeSensor; 11=LocalSensor
+// 0=Kinect; 1=PrimeSense; 2=KinectOne; 3=BinaryDumpReader; 4=NetworkSensor; 5=IntelSensor; 6=RealSense; 7=StructureSensor; 8=SensorDataReader; 9=TCPSensor; 10=MynteyeSensor; 11=LocalSensor; 12=TCPDirectSensor
 s_sensorIdx = 11;
 
 //s_windowWidth = 1280;		//render window width
@@ -29,8 +29,8 @@ s_SDFIntegrationWeightSample = 3;		//weight for an integrated depth value
 s_SDFIntegrationWeightMax = 255;		//maximum integration weight for a voxel
 // s_SDFBlockSize is pound defined (SDF_BLOCK_SIZE)
 // s_hashBucketSize is pound defined (HASH_BUCKET_SIZE)
-s_hashNumBuckets = 800000;				//smaller voxels require more space
-s_hashNumSDFBlocks = 800000;			//smaller voxels require more space
+s_hashNumBuckets = 400000;				//smaller voxels require more space
+s_hashNumSDFBlocks = 400000;			//smaller voxels require more space
 s_hashMaxCollisionLinkedListSize = 7;
 
 // raycast
@@ -57,8 +57,8 @@ s_colorSigmaD = 1.0f;	//bilateral filter sigma domain
 s_colorSigmaR = 0.08f;	//bilateral filter sigma range
 s_colorFilter = false;	//bilateral filter enabled depth
 
-s_integrationEnabled		= true;
-s_trackingEnabled			= true;
+s_integrationEnabled		= false;
+s_trackingEnabled			= false;
 s_timingsDetailledEnabled   = false;	//enable timing output
 s_timingsTotalEnabled		= false;	//enable timing output
 s_garbageCollectionEnabled	= false;
@@ -74,7 +74,7 @@ s_lightDiffuse 			= 0.6f 0.52944f 0.4566f 0.6f;
 s_lightSpecular 		= 0.3f 0.3f 0.3f 1.0f;
 s_lightDirection 		= 0.0f -1.0f 2.0f;
 
-s_RenderMode = 1;
+s_RenderMode = 0;
 
 s_useColorForRendering = false;
 s_playData = true;
@@ -86,7 +86,7 @@ s_remappingDepthDiscontinuityThresLin	 = 0.016f;	// additional discontinuity thr
 
 s_bUseCameraCalibration = false;
 							    
-s_marchingCubesMaxNumTriangles = 20000000; // max buffer size for marching cube
+s_marchingCubesMaxNumTriangles = 2500000; // max buffer size for marching cube
 
 //streaming parameters
 s_streamingEnabled = false;
@@ -108,6 +108,9 @@ s_renderToFileDir = "./output/";
 
 s_offlineProcessing = false;			//slower, but makes sure that all voxels are alllocated and streaming all blocks is enforced
 
-s_groundTruthPose = true;
-s_groundTruthPoseIter = false;
+
 s_dataWithPose = true;
+
+s_useVR = true;
+s_displayOverlayInVR = false;
+s_mappingEnabled = true;

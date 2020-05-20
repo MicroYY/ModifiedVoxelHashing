@@ -27,7 +27,7 @@ LocalSensor::LocalSensor()
 	initializeColorExtrinsics(mat4f::identity());
 
 	frameNum = 1;
-	path = "D:/Code/TestingCode/data/mynt/stone";
+	path = "D:/TestingCode/data/mynt";
 	pose = (float*)malloc(sizeof(float) * 7);
 }
 
@@ -43,7 +43,7 @@ HRESULT LocalSensor::createFirstConnected()
 
 HRESULT LocalSensor::processDepth()
 {
-	std::cout << frameNum << "\n";
+	//std::cout << frameNum << "\n";
 
 	float* depth = getDepthFloat();
 
@@ -167,7 +167,7 @@ HRESULT LocalSensor::processColor()
 	}
 
 	frameNum++;
-	if (frameNum == 1641)
+	if (frameNum == 302)
 	{
 		frameNum = 1;
 	}

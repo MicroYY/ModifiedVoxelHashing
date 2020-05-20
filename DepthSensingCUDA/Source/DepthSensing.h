@@ -20,6 +20,7 @@
 #include "IntelSensor.h"
 #include "RealSenseSensor.h"
 #include "TCPSensor.h"
+#include "TCPDirectSensor.h"
 #include "LocalSensor.h"
 
 

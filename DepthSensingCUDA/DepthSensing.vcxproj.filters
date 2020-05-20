@@ -173,6 +173,11 @@
     <ClCompile Include="Source\LocalSensor.cpp">
       <Filter>Sensors</Filter>
     </ClCompile>
+    <ClCompile Include="Source\TCPDirectSensor.cpp">
+      <Filter>Sensors</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VR.cpp" />
+    <ClCompile Include="Source\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CameraParams.h" />
@@ -345,6 +350,11 @@
     <ClInclude Include="Source\LocalSensor.h">
       <Filter>Sensors</Filter>
     </ClInclude>
+    <ClInclude Include="Source\TCPDirectSensor.h">
+      <Filter>Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VR.h" />
+    <ClInclude Include="Source\Shader.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\QuadDrawer.hlsl">

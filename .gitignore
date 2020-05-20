@@ -7,3 +7,5 @@
 /DepthSensingCUDA/Scans
 /DepthSensingCUDA/x64
 *.bmp
+/DepthSensingCUDA/.vs/DepthSensing/v15
+/Mapping/x64/Release

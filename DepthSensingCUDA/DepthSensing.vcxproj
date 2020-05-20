@@ -15,7 +15,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>DepthWithColor.D3D</RootNamespace>
     <ProjectName>DepthSensing</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -29,7 +29,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -37,7 +37,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\..\props\opencv-4.2.0-release.props" />
+    <Import Project="..\..\..\Props\opencv-3.2.0-release.props" />
+    <Import Project="..\..\..\Props\Kinect.props" />
+    <Import Project="..\..\..\Props\OVR.props" />
+    <Import Project="..\..\..\Props\SDL.props" />
+    <Import Project="..\..\..\Props\glew-1.12.0.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -206,14 +210,17 @@
     <ClCompile Include="Source\RealSenseSensor.cpp" />
     <ClCompile Include="Source\RGBDSensor.cpp" />
     <ClCompile Include="Source\SensorDataReader.cpp" />
+    <ClCompile Include="Source\Shader.cpp" />
     <ClCompile Include="Source\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\StdOutputLogger.cpp" />
     <ClCompile Include="Source\StructureSensor.cpp" />
+    <ClCompile Include="Source\TCPDirectSensor.cpp" />
     <ClCompile Include="Source\TCPSensor.cpp" />
     <ClCompile Include="Source\TimingLog.cpp" />
+    <ClCompile Include="Source\VR.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\BinaryDumpReader.h" />
@@ -274,14 +281,17 @@
     <ClInclude Include="Source\Resource.h" />
     <ClInclude Include="Source\RGBDSensor.h" />
     <ClInclude Include="Source\SensorDataReader.h" />
+    <ClInclude Include="Source\Shader.hpp" />
     <ClInclude Include="Source\stdafx.h" />
     <ClInclude Include="Source\StdOutputLogger.h" />
     <ClInclude Include="Source\StructureSensor.h" />
     <ClInclude Include="Source\Tables.h" />
+    <ClInclude Include="Source\TCPDirectSensor.h" />
     <ClInclude Include="Source\TCPSensor.h" />
     <ClInclude Include="Source\TimingLog.h" />
     <ClInclude Include="Source\Util.h" />
     <ClInclude Include="Source\VoxelUtilHashSDF.h" />
+    <ClInclude Include="Source\VR.h" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

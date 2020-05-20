@@ -1,20 +1,39 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DepthSensing", "DepthSensing.vcxproj", "{89F3188C-74EF-4925-BE9B-96EA67B5A528}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mapping", "..\Mapping\Mapping.vcxproj", "{00E6EE64-3730-4AF7-B9C9-18A66D612193}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{89F3188C-74EF-4925-BE9B-96EA67B5A528}.Debug|x64.ActiveCfg = Debug|x64
 		{89F3188C-74EF-4925-BE9B-96EA67B5A528}.Debug|x64.Build.0 = Debug|x64
+		{89F3188C-74EF-4925-BE9B-96EA67B5A528}.Debug|x86.ActiveCfg = Debug|x64
 		{89F3188C-74EF-4925-BE9B-96EA67B5A528}.Release|x64.ActiveCfg = Release|x64
 		{89F3188C-74EF-4925-BE9B-96EA67B5A528}.Release|x64.Build.0 = Release|x64
+		{89F3188C-74EF-4925-BE9B-96EA67B5A528}.Release|x86.ActiveCfg = Release|x64
+		{00E6EE64-3730-4AF7-B9C9-18A66D612193}.Debug|x64.ActiveCfg = Debug|x64
+		{00E6EE64-3730-4AF7-B9C9-18A66D612193}.Debug|x64.Build.0 = Debug|x64
+		{00E6EE64-3730-4AF7-B9C9-18A66D612193}.Debug|x86.ActiveCfg = Debug|Win32
+		{00E6EE64-3730-4AF7-B9C9-18A66D612193}.Debug|x86.Build.0 = Debug|Win32
+		{00E6EE64-3730-4AF7-B9C9-18A66D612193}.Release|x64.ActiveCfg = Release|x64
+		{00E6EE64-3730-4AF7-B9C9-18A66D612193}.Release|x64.Build.0 = Release|x64
+		{00E6EE64-3730-4AF7-B9C9-18A66D612193}.Release|x86.ActiveCfg = Release|Win32
+		{00E6EE64-3730-4AF7-B9C9-18A66D612193}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2BC51223-9E79-4FF0-AF6F-9D088C611B92}
 	EndGlobalSection
 EndGlobal

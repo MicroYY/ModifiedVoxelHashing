@@ -9,6 +9,7 @@
 //#define STRUCTURE_SENSOR
 #define SENSOR_DATA_READER
 #define TCP_SENSOR
+#define TCP_DIRECT_SENSOR
 #define LOCAL_SENSOR
 
 //#define OBJECT_SENSING
@@ -100,9 +101,10 @@
 	X(bool, s_renderToFile) \
 	X(std::string, s_renderToFileDir) \
 	X(bool, s_offlineProcessing) \
-	X(bool, s_groundTruthPose) \
-	X(bool, s_groundTruthPoseIter) \
 	X(bool, s_dataWithPose) \
+	X(bool, s_useVR) \
+	X(bool, s_displayOverlayInVR) \
+	X(bool, s_mappingEnabled) \
 
 
 #ifndef VAR_NAME
@@ -127,7 +129,8 @@ public:
 		Sensor_SensorDataReader = 8,
 		Sensor_TCPSensor = 9,
 		Sensor_Mynteye = 10,
-		Sensor_LocalSensor = 11
+		Sensor_LocalSensor = 11,
+		Sensor_TCPDirectSensor = 12
 	};
 
 #define X(type, name) type name;
